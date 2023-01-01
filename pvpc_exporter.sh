@@ -41,7 +41,8 @@ for i in $(seq 0 "$length"); do
 done
 
 echo "$price_stats" | $GZIP |
-    $CURL --request POST "${INFLUXDB_URL}" \
+    $CURL --silent \
+        --request POST "${INFLUXDB_URL}" \
         --header 'Content-Encoding: gzip' \
         --header "Authorization: Token $INFLUXDB_API_TOKEN" \
         --header "Content-Type: text/plain; charset=utf-8" \
