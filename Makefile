@@ -1,6 +1,8 @@
 .PHONY: install-user
 install-user:
-	@cp pvpc_exporter.sh $${HOME}/.local/bin/ \
+	@mkdir --parents $${HOME}/.local/bin \
+	&& mkdir --parents $${HOME}/.config/systemd/user \
+	&& cp pvpc_exporter.sh $${HOME}/.local/bin/ \
 	&& chmod +x $${HOME}/.local/bin/pvpc_exporter.sh \
 	&& cp --no-clobber pvpc_exporter.conf $${HOME}/.config/pvpc_exporter.conf \
 	&& cp pvpc-exporter.timer $${HOME}/.config/systemd/user/ \
