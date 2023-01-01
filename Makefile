@@ -1,5 +1,5 @@
-.PHONY: install-user
-install-user:
+.PHONY: install
+install:
 	@mkdir --parents $${HOME}/.local/bin \
 	&& mkdir --parents $${HOME}/.config/systemd/user \
 	&& cp pvpc_exporter.sh $${HOME}/.local/bin/ \
@@ -9,8 +9,8 @@ install-user:
 	&& cp pvpc-exporter.service $${HOME}/.config/systemd/user/ \
 	&& systemctl --user enable --now pvpc-exporter.timer
 
-.PHONY: uninstall-user
-uninstall-user:
+.PHONY: uninstall
+uninstall:
 	@rm -f $${HOME}/.local/bin/pvpc_exporter.sh \
 	&& rm -f $${HOME}/.config/pvpc_exporter.conf \
 	&& systemctl --user disable --now pvpc-exporter.timer \
