@@ -1,0 +1,8 @@
+[Unit]
+Description=PVPC Exporter Timer
+
+[Timer]
+OnCalendar=*-*-* 10:00:00
+
+[Install]
+WantedBy=timers.target

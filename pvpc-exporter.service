@@ -1,0 +1,8 @@
+[Unit]
+Description=PVPC Exporter
+After=network-online.target
+
+[Service]
+ExecStart=/home/%u/.local/bin/pvpc_exporter.sh
+EnvironmentFile=/home/%u/.config/pvpc_exporter.conf
+Type=simple
