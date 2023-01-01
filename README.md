@@ -4,9 +4,13 @@ Bash script that uploads the PVPC €/MWh data from REData API to influxdb on a 
 
 ## Dependencies
 
+- [bash](https://www.gnu.org/software/bash/)
+- [coreutils (date)](https://www.gnu.org/software/coreutils/)
 - [curl](https://curl.se/)
+- [gzip](https://www.gnu.org/software/gzip/)
 - [jq](https://stedolan.github.io/jq/)
 - Optional: [make](https://www.gnu.org/software/make/) - for automatic installation support
+- [systemd](https://systemd.io/)
 
 ## Relevant documentation
 
