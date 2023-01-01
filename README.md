@@ -70,7 +70,7 @@ BUCKET='pvpc'
 - `INFLUXDB_API_TOKEN` should be the influxdb API token value.
   - This token should have write access to the `BUCKET` defined above.
 
-### Troubleshooting
+## Troubleshooting
 
 Check the systemd service logs and timer info with:
 
