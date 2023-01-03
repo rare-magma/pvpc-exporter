@@ -73,6 +73,12 @@ BUCKET='pvpc'
 
 ## Troubleshooting
 
+Run the script manually with bash set to trace:
+
+```
+bash -x $HOME/.local/bin/pvpc_exporter.sh
+```
+
 Check the systemd service logs and timer info with:
 
 ```
@@ -123,5 +129,5 @@ Delete the following files:
 This project takes inspiration from the following:
 
 - [rare-magma/pbs-exporter](https://github.com/rare-magma/pbs-exporter)
-- [mad-ady/borg-exporter](https://github.com/mad-ady/borg-exporter)
-- [OVYA/borg-exporter](https://github.com/OVYA/borg-exporter)
+- [mad-ady/prometheus-borg-exporter](https://github.com/mad-ady/prometheus-borg-exporter)
+- [OVYA/prometheus-borg-exporter](https://github.com/OVYA/prometheus-borg-exporter)
