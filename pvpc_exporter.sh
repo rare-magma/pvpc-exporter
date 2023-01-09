@@ -10,6 +10,9 @@ for program in "${dependencies[@]}"; do
     }
 done
 
+# shellcheck source=/dev/null
+source "$CREDENTIALS_DIRECTORY/creds"
+
 [[ -z "${INFLUXDB_HOST}" ]] && echo >&2 "INFLUXDB_HOST is empty. Aborting" && exit 1
 [[ -z "${INFLUXDB_API_TOKEN}" ]] && echo >&2 "INFLUXDB_API_TOKEN is empty. Aborting" && exit 1
 [[ -z "${ORG}" ]] && echo >&2 "ORG is empty. Aborting" && exit 1
