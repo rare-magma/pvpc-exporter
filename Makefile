@@ -5,7 +5,7 @@ install:
 	&& cp pvpc_exporter.sh $${HOME}/.local/bin/ \
 	&& chmod +x $${HOME}/.local/bin/pvpc_exporter.sh \
 	&& cp --no-clobber pvpc_exporter.conf $${HOME}/.config/pvpc_exporter.conf \
-	&& chmod 400 $${HOME}/.config/pbs_exporter.conf \
+	&& chmod 400 $${HOME}/.config/pvpc_exporter.conf \
 	&& cp pvpc-exporter.timer $${HOME}/.config/systemd/user/ \
 	&& cp pvpc-exporter.service $${HOME}/.config/systemd/user/ \
 	&& systemctl --user enable --now pvpc-exporter.timer
