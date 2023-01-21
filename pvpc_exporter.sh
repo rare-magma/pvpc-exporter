@@ -25,11 +25,15 @@ JQ=$(command -v jq)
 
 TODAY=$($DATE --rfc-3339=date)
 INFLUXDB_URL="https://$INFLUXDB_HOST/api/v2/write?precision=s&org=$ORG&bucket=$BUCKET"
-PVPC_URL="https://apidatos.ree.es/es/datos/mercados/precios-mercados-tiempo-real?start_date=${TODAY}T00:00&end_date=${TODAY}T23:59&time_trunc=hour"
+PVPC_URL="https://apidatos.ree.es/es/datos/mercados/precios-mercados-tiempo-real?"
+PVPC_URL+="start_date=${TODAY}T00:00&end_date=${TODAY}T23:59&time_trunc=hour"
 
 pvpc_json=$($CURL --silent --compressed "$PVPC_URL")
 
-parsed_prices_json=$(echo "$pvpc_json" | $JQ '.included[] | select(.id=="1001") | del(.attributes.values[].percentage) | .attributes.values')
+parsed_prices_json=$(
+    echo "$pvpc_json" |
+        $JQ '.included[] | select(.id=="1001") | del(.attributes.values[].percentage) | .attributes.values'
+)
 
 length=$(echo "$parsed_prices_json" | $JQ 'length - 1')
 
