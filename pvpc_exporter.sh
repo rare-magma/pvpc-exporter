@@ -23,12 +23,23 @@ DATE=$(command -v date)
 GZIP=$(command -v gzip)
 JQ=$(command -v jq)
 
-TODAY=$($DATE --rfc-3339=date)
+NB_DAYS="0"
+
+if [[ $# -eq 1 ]]; then
+    # regexp for integer assertion
+    if [[ $1 =~ ^[0-9]+$ ]]; then
+        NB_DAYS="$1"
+    else
+        echo >&2 "First argument is not a number. Aborting" && exit 1
+    fi
+fi
+
+RFC_DATE=$($DATE --rfc-3339=date --date="$NB_DAYS days ago")
 INFLUXDB_URL="https://$INFLUXDB_HOST/api/v2/write?precision=s&org=$ORG&bucket=$BUCKET"
 PVPC_URL="https://apidatos.ree.es/es/datos/mercados/precios-mercados-tiempo-real?"
-PVPC_URL+="start_date=${TODAY}T00:00&end_date=${TODAY}T23:59&time_trunc=hour"
+PVPC_URL+="start_date=${RFC_DATE}T00:00&end_date=${RFC_DATE}T23:59&time_trunc=hour"
 
-pvpc_json=$($CURL --silent --compressed "$PVPC_URL")
+pvpc_json=$($CURL --silent --fail --show-error --compressed "$PVPC_URL")
 
 parsed_prices_json=$(
     echo "$pvpc_json" |
@@ -48,7 +59,7 @@ for i in $(seq 0 "$length"); do
 done
 
 echo "$price_stats" | $GZIP |
-    $CURL --silent \
+    $CURL --silent --fail --show-error \
         --request POST "${INFLUXDB_URL}" \
         --header 'Content-Encoding: gzip' \
         --header "Authorization: Token $INFLUXDB_API_TOKEN" \
