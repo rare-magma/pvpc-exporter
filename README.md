@@ -71,6 +71,24 @@ BUCKET='pvpc'
 - `INFLUXDB_API_TOKEN` should be the influxdb API token value.
   - This token should have write access to the `BUCKET` defined above.
 
+## Exporting prices for dates in the past
+
+If the script is passed a number as the first argument then it will query the REData API for an interval in the past instead of the default date of "today".
+
+This argument should correspond to the number of days in the past relative to the current date.
+
+Example:
+
+```
+~/.local/bin/pvpc_exporter.sh 30
+```
+
+A simple bash loop can be used to query the API with an interval between "today" and 15 days ago:
+
+```
+for i in {0..15}; do echo "Exporting data from $(date -I -d "$i days ago")" && ~/.local/bin/pvpc_exporter.sh "$i"; done
+```
+
 ## Troubleshooting
 
 Run the script manually with bash set to trace:
