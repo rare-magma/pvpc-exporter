@@ -73,9 +73,10 @@ BUCKET='pvpc'
 
 ## Exporting prices for dates in the past
 
-If the script is passed a number as the first argument then it will query the REData API for an interval in the past instead of the default date of "today".
+If the script is passed a number as the first argument, it will query the REData API for an interval in the past instead of the default date of "today".
 
 This argument should correspond to the number of days in the past relative to the current date.
+Take into account that the REData API doesn't allow queries for dates prior to 2014-01-01.
 
 Example:
 
