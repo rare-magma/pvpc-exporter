@@ -116,6 +116,18 @@ systemctl --user list-timers
 pvpc_price,hour=2023-01-01T23:00:00.000+01:00 price=63.54 1672610400
 ```
 
+## Example grafana dashboard
+
+In `pvpc-dashboard.json` there is an example of the kind of dashboard that can be built with `pvpc-exporter` data:
+
+<img src="dashboard-screenshot.png" title="Example grafana dashboard" width="100%">
+
+Import it by doing the following:
+
+1. Create a dashboard
+2. Click the dashboard's settings button on the top right.
+3. Go to JSON Model and then paste there the content of the `grafana-dashboard.json` file.
+
 ## Uninstallation
 
 ### With the Makefile
