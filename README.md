@@ -126,7 +126,7 @@ Import it by doing the following:
 
 1. Create a dashboard
 2. Click the dashboard's settings button on the top right.
-3. Go to JSON Model and then paste there the content of the `grafana-dashboard.json` file.
+3. Go to JSON Model and then paste there the content of the `pvpc-dashboard.json` file.
 
 ## Uninstallation
 
