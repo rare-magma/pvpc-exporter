@@ -38,7 +38,8 @@ if [[ $# -eq 1 ]]; then
     fi
 fi
 
-RFC_DATE=$($DATE --rfc-3339=date --date="$NB_DAYS days ago")
+# YYYY-MM-DD
+RFC_DATE=$($DATE -I --date="$NB_DAYS days ago")
 INFLUXDB_URL="https://$INFLUXDB_HOST/api/v2/write?precision=s&org=$ORG&bucket=$BUCKET"
 PVPC_URL="https://apidatos.ree.es/es/datos/mercados/precios-mercados-tiempo-real?"
 PVPC_URL+="start_date=${RFC_DATE}T00:00&end_date=${RFC_DATE}T23:59&time_trunc=hour"
