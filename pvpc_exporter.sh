@@ -11,7 +11,7 @@ for program in "${dependencies[@]}"; do
 done
 
 if [[ "${RUNNING_IN_DOCKER}" ]]; then
-    source "/app/open_meteo_exporter.conf"
+    source "/app/pvpc_exporter.conf"
 else
     # shellcheck source=/dev/null
     source "$CREDENTIALS_DIRECTORY/creds"
