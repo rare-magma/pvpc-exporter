@@ -56,10 +56,9 @@ for i in $(seq 0 "$length"); do
 
     mapfile -t parsed_priced_stats < <(echo "$parsed_prices_json" | $JQ --raw-output ".[$i] | .value,.datetime")
     pvpc_price_value=${parsed_priced_stats[0]}
-    datetime_value=${parsed_priced_stats[1]}
-    ts=$($DATE "+%s" --date="$datetime_value")
+    ts=$($DATE "+%s" --date="${parsed_priced_stats[1]}")
 
-    price_stats+=$(printf "\npvpc_price,hour=%s price=%s %s" "$datetime_value" "$pvpc_price_value" "$ts")
+    price_stats+=$(printf "\npvpc_price price=%s %s" "$pvpc_price_value" "$ts")
 done
 
 echo "$price_stats" | $GZIP |

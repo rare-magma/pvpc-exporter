@@ -135,12 +135,11 @@ systemctl --user list-timers
 ## Exported metrics
 
 - price: The pvpc price in €/MWh
-- hour: The datetime corresponding to the price above
 
 ## Exported metrics example
 
 ```
-pvpc_price,hour=2023-01-01T23:00:00.000+01:00 price=63.54 1672610400
+pvpc_price price=63.54 1672610400
 ```
 
 ## Example grafana dashboard
