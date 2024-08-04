@@ -46,15 +46,18 @@ Bash script that uploads the PVPC €/MWh data from REData API to influxdb on a 
 1. Configure `pvpc_exporter.conf` (see the configuration section below).
 1. Run it.
 
-   `docker run --rm --init --tty --interactive --volume $(pwd):/app localhost/pvpc-exporter`
+```bash
+    docker run --rm --init --tty --interactive --read-only --cap-drop ALL --security-opt no-new-privileges:true --cpus 2 -m 64m --pids-limit 16 --volume ./pvpc_exporter.conf:/app/pvpc_exporter.conf:ro ghcr.io/rare-magma/pvpc-exporter:latest
 
 ### With the Makefile
 
 For convenience, you can install this exporter with the following command or follow the manual process described in the next paragraph.
 
 ```
+
 make install
 $EDITOR $HOME/.config/pvpc_exporter.conf
+
 ```
 
 ### Manually
@@ -66,19 +69,25 @@ $EDITOR $HOME/.config/pvpc_exporter.conf
 3. Copy the systemd unit and timer to `$HOME/.config/systemd/user/`:
 
 ```
+
 cp pvpc-exporter.* $HOME/.config/systemd/user/
+
 ```
 
 5. and run the following command to activate the timer:
 
 ```
+
 systemctl --user enable --now pvpc-exporter.timer
+
 ```
 
 It's possible to trigger the execution by running manually:
 
 ```
+
 systemctl --user start pvpc-exporter.service
+
 ```
 
 ### Config file
@@ -86,10 +95,12 @@ systemctl --user start pvpc-exporter.service
 The config file has a few options:
 
 ```
+
 INFLUXDB_HOST='influxdb.example.com'
 INFLUXDB_API_TOKEN='ZXhhbXBsZXRva2VuZXhhcXdzZGFzZGptcW9kcXdvZGptcXdvZHF3b2RqbXF3ZHFhc2RhCg=='
 ORG='home'
 BUCKET='pvpc'
+
 ```
 
 - `INFLUXDB_HOST` should be the FQDN of the influxdb server.
@@ -108,13 +119,17 @@ Take into account that the REData API doesn't allow queries for dates prior to 2
 Example:
 
 ```
+
 ~/.local/bin/pvpc_exporter.sh 30
+
 ```
 
 A simple bash loop can be used to query the API with an interval between "today" and 15 days ago:
 
 ```
+
 for i in {0..15}; do echo "Exporting data from $(date -I -d "$i days ago")" && ~/.local/bin/pvpc_exporter.sh "$i"; done
+
 ```
 
 ## Troubleshooting
@@ -122,14 +137,18 @@ for i in {0..15}; do echo "Exporting data from $(date -I -d "$i days ago")" && ~
 Run the script manually with bash set to trace:
 
 ```
+
 bash -x $HOME/.local/bin/pvpc_exporter.sh
+
 ```
 
 Check the systemd service logs and timer info with:
 
 ```
+
 journalctl --user --unit pvpc-exporter.service
 systemctl --user list-timers
+
 ```
 
 ## Exported metrics
@@ -139,7 +158,9 @@ systemctl --user list-timers
 ## Exported metrics example
 
 ```
+
 pvpc_price price=63.54 1672610400
+
 ```
 
 ## Example grafana dashboard
@@ -161,7 +182,9 @@ Import it by doing the following:
 For convenience, you can uninstall this exporter with the following command or follow the process described in the next paragraph.
 
 ```
+
 make uninstall
+
 ```
 
 ### Manually
@@ -169,16 +192,20 @@ make uninstall
 Run the following command to deactivate the timer:
 
 ```
+
 systemctl --user disable --now pvpc-exporter.timer
+
 ```
 
 Delete the following files:
 
 ```
+
 ~/.local/bin/pvpc_exporter.sh
 ~/.config/pvpc_exporter.conf
 ~/.config/systemd/user/pvpc-exporter.timer
 ~/.config/systemd/user/pvpc-exporter.service
+
 ```
 
 ## Credits

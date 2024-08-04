@@ -1,7 +1,18 @@
 version: "3"
 services:
   scheduler:
-    image: ghcr.io/reddec/compose-scheduler:1.0.0
+    image: ghcr.io/reddec/compose-scheduler:1.1.0
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 250m
+          pids: 1024
     privileged: true
     restart: unless-stopped
     volumes:
@@ -10,10 +21,18 @@ services:
   pvpc-exporter:
     image: pvpc-exporter:latest
     init: true
-    build:
-      context: .
-      dockerfile: ./Dockerfile
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 64m
+          pids: 16
     volumes:
-      - ./:/app:z
+      - ./pvpc_exporter.conf:/app/pvpc_exporter.conf:ro
     labels:
       net.reddec.scheduler.cron: "* 21 * * *"
