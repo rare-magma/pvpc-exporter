@@ -46,8 +46,9 @@ Bash script that uploads the PVPC €/MWh data from REData API to influxdb on a 
 1. Configure `pvpc_exporter.conf` (see the configuration section below).
 1. Run it.
 
-```bash
+  ```bash
     docker run --rm --init --tty --interactive --read-only --cap-drop ALL --security-opt no-new-privileges:true --cpus 2 -m 64m --pids-limit 16 --volume ./pvpc_exporter.conf:/app/pvpc_exporter.conf:ro ghcr.io/rare-magma/pvpc-exporter:latest
+  ```
 
 ### With the Makefile
 
