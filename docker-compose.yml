@@ -19,7 +19,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
   pvpc-exporter:
-    image: pvpc-exporter:latest
+    image: ghcr.io/rare-magma/pvpc-exporter:latest
     init: true
     read_only: true
     cap_drop:
