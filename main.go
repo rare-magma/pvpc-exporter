@@ -85,10 +85,17 @@ func main() {
 	req, _ := http.NewRequest("GET", pvpcURL, nil)
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatalln("Error fetching PVPC data:", err)
+		log.Fatalln("Error fetching data: ", err)
 	}
-
 	defer resp.Body.Close()
+	getStatusOK := resp.StatusCode >= http.StatusOK && resp.StatusCode < http.StatusBadRequest
+	if !getStatusOK {
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatalln("Error reading data: ", err)
+		}
+		log.Fatalln("Error fetching PVPC data: ", string(resp.Status), string(body))
+	}
 	pvpcData, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatalln("Error reading data: ", err)
@@ -128,14 +135,15 @@ func main() {
 	post.Header.Set("Content-Type", "text/plain; charset=utf-8")
 	postResp, err := client.Do(post)
 	if err != nil {
-		log.Fatalln("Error sending data:", err)
+		log.Fatalln("Error sending data: ", err)
 	}
 	defer postResp.Body.Close()
-	body, err := io.ReadAll(postResp.Body)
-	if err != nil {
-		log.Fatalln("Error reading data:", err)
-	}
-	if resp.StatusCode != 204 && resp.StatusCode != 200 {
-		log.Fatalln("Error sending data:", string(body))
+	statusOK := resp.StatusCode >= http.StatusOK && resp.StatusCode < http.StatusMultipleChoices
+	if !statusOK {
+		body, err := io.ReadAll(postResp.Body)
+		if err != nil {
+			log.Fatalln("Error reading data: ", err)
+		}
+		log.Fatalln("Error sending data: ", postResp.Status, string(body))
 	}
 }
