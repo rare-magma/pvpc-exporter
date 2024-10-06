@@ -1,19 +1,15 @@
 # pvpc-exporter
 
-Bash script that uploads the PVPC €/MWh data from REData API to influxdb on a daily basis
+CLI tool that uploads the PVPC €/MWh data from REData API to influxdb on a daily basis
 
 ## Dependencies
 
-- [bash](https://www.gnu.org/software/bash/)
-- [coreutils (date)](https://www.gnu.org/software/coreutils/)
-- [curl](https://curl.se/)
-- [gzip](https://www.gnu.org/software/gzip/)
+- [go](https://go.dev/)
 - [influxdb v2+](https://docs.influxdata.com/influxdb/v2.6/)
-- [jq](https://stedolan.github.io/jq/)
-- [systemd](https://systemd.io/)
 - Optional:
   - [make](https://www.gnu.org/software/make/) - for automatic installation support
   - [docker](https://docs.docker.com/)
+  - [systemd](https://systemd.io/)
 
 ## Relevant documentation
 
@@ -28,7 +24,7 @@ Bash script that uploads the PVPC €/MWh data from REData API to influxdb on a 
 
 #### docker-compose
 
-1. Configure `pvpc_exporter.conf` (see the configuration section below).
+1. Configure `pvpc_exporter.json` (see the configuration section below).
 1. Run it.
 
    ```bash
@@ -43,49 +39,55 @@ Bash script that uploads the PVPC €/MWh data from REData API to influxdb on a 
    docker build . --tag pvpc-exporter
    ```
 
-1. Configure `pvpc_exporter.conf` (see the configuration section below).
+1. Configure `pvpc_exporter.json` (see the configuration section below).
 1. Run it.
 
   ```bash
-    docker run --rm --init --tty --interactive --read-only --cap-drop ALL --security-opt no-new-privileges:true --cpus 2 -m 64m --pids-limit 16 --volume ./pvpc_exporter.conf:/app/pvpc_exporter.conf:ro ghcr.io/rare-magma/pvpc-exporter:latest
+    docker run --rm --init --tty --interactive --read-only --cap-drop ALL --security-opt no-new-privileges:true --cpus 2 -m 64m --pids-limit 16 --volume ./pvpc_exporter.json:/app/pvpc_exporter.json:ro ghcr.io/rare-magma/pvpc-exporter:latest
   ```
 
 ### With the Makefile
 
 For convenience, you can install this exporter with the following command or follow the manual process described in the next paragraph.
 
-```
-
+```bash
+make build
 make install
-$EDITOR $HOME/.config/pvpc_exporter.conf
+$EDITOR $HOME/.config/pvpc_exporter.json
 
 ```
 
 ### Manually
 
-1. Copy `pvpc_exporter.sh` to `$HOME/.local/bin/` and make it executable.
+1. Build `pvpc_exporter` with:
 
-2. Copy `pvpc_exporter.conf` to `$HOME/.config/`, configure it (see the configuration section below) and make it read only.
+    ```bash
+    go build -ldflags="-s -w" -o pvpc_exporter main.go
+    ```
 
-3. Copy the systemd unit and timer to `$HOME/.config/systemd/user/`:
+2. Copy `pvpc_exporter` to `$HOME/.local/bin/`.
 
-```
+3. Copy `pvpc_exporter.json` to `$HOME/.config/`, configure it (see the configuration section below) and make it read only.
 
-cp pvpc-exporter.* $HOME/.config/systemd/user/
+4. Copy the systemd unit and timer to `$HOME/.config/systemd/user/`:
 
-```
+    ```bash
+
+    cp pvpc-exporter.* $HOME/.config/systemd/user/
+
+    ```
 
 5. and run the following command to activate the timer:
 
-```
+    ```bash
 
-systemctl --user enable --now pvpc-exporter.timer
+    systemctl --user enable --now pvpc-exporter.timer
 
-```
+    ```
 
 It's possible to trigger the execution by running manually:
 
-```
+```bash
 
 systemctl --user start pvpc-exporter.service
 
@@ -95,57 +97,57 @@ systemctl --user start pvpc-exporter.service
 
 The config file has a few options:
 
+```json
+{
+ "InfluxDBHost": "influxdb.example.com",
+ "InfluxDBApiToken": "ZXhhbXBsZXRva2VuZXhhcXdzZGFzZGptcW9kcXdvZGptcXdvZHF3b2RqbXF3ZHFhc2RhCg==",
+ "Org": "home",
+ "Bucket": "pvpc",
+}
 ```
 
-INFLUXDB_HOST='influxdb.example.com'
-INFLUXDB_API_TOKEN='ZXhhbXBsZXRva2VuZXhhcXdzZGFzZGptcW9kcXdvZGptcXdvZHF3b2RqbXF3ZHFhc2RhCg=='
-ORG='home'
-BUCKET='pvpc'
-
-```
-
-- `INFLUXDB_HOST` should be the FQDN of the influxdb server.
-- `ORG` should be the name of the influxdb organization that contains the pvpc price data bucket defined below.
-- `BUCKET` should be the name of the influxdb bucket that will hold the pvpc price data.
-- `INFLUXDB_API_TOKEN` should be the influxdb API token value.
-  - This token should have write access to the `BUCKET` defined above.
+- `InfluxDBHost` should be the FQDN of the influxdb server.
+- `Org` should be the name of the influxdb organization that contains the pvpc price data bucket defined below.
+- `Bucket` should be the name of the influxdb bucket that will hold the pvpc price data.
+- `InfluxDBApiToken` should be the influxdb API token value.
+  - This token should have write access to the `Bucket` defined above.
 
 ## Exporting prices for dates in the past
 
-If the script is passed a number as the first argument, it will query the REData API for an interval in the past instead of the default date of "today".
+If the cli is passed a number with the `--days` cli flag, it will query the REData API for an interval in the past instead of the default date of "today".
 
 This argument should correspond to the number of days in the past relative to the current date.
 Take into account that the REData API doesn't allow queries for dates prior to 2014-01-01.
 
 Example:
 
-```
+```bash
 
-~/.local/bin/pvpc_exporter.sh 30
+~/.local/bin/pvpc_exporter --days 30
 
 ```
 
 A simple bash loop can be used to query the API with an interval between "today" and 15 days ago:
 
-```
+```bash
 
-for i in {0..15}; do echo "Exporting data from $(date -I -d "$i days ago")" && ~/.local/bin/pvpc_exporter.sh "$i"; done
+for i in {0..15}; do echo "Exporting data from $(date -I -d "$i days ago")" && ~/.local/bin/pvpc_exporter --days "$i"; done
 
 ```
 
 ## Troubleshooting
 
-Run the script manually with bash set to trace:
+Run the tool manually with go set to debug:
 
-```
+```bash
 
-bash -x $HOME/.local/bin/pvpc_exporter.sh
+GODEBUG=http1debug=2 $HOME/.local/bin/pvpc_exporter
 
 ```
 
 Check the systemd service logs and timer info with:
 
-```
+```bash
 
 journalctl --user --unit pvpc-exporter.service
 systemctl --user list-timers
@@ -158,7 +160,7 @@ systemctl --user list-timers
 
 ## Exported metrics example
 
-```
+```bash
 
 pvpc_price price=63.54 1672610400
 
@@ -182,7 +184,7 @@ Import it by doing the following:
 
 For convenience, you can uninstall this exporter with the following command or follow the process described in the next paragraph.
 
-```
+```bash
 
 make uninstall
 
@@ -192,7 +194,7 @@ make uninstall
 
 Run the following command to deactivate the timer:
 
-```
+```bash
 
 systemctl --user disable --now pvpc-exporter.timer
 
@@ -200,10 +202,10 @@ systemctl --user disable --now pvpc-exporter.timer
 
 Delete the following files:
 
-```
+```bash
 
-~/.local/bin/pvpc_exporter.sh
-~/.config/pvpc_exporter.conf
+~/.local/bin/pvpc_exporter
+~/.config/pvpc_exporter.json
 ~/.config/systemd/user/pvpc-exporter.timer
 ~/.config/systemd/user/pvpc-exporter.service
 
@@ -215,6 +217,4 @@ Delete the following files:
 
 This project takes inspiration from the following:
 
-- [rare-magma/pbs-exporter](https://github.com/rare-magma/pbs-exporter)
-- [mad-ady/prometheus-borg-exporter](https://github.com/mad-ady/prometheus-borg-exporter)
-- [OVYA/prometheus-borg-exporter](https://github.com/OVYA/prometheus-borg-exporter)
+- [rare-magma/aemet-exporter](https://github.com/rare-magma/pbs-exporter)

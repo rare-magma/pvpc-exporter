@@ -1,0 +1,6 @@
+{
+	"InfluxDBHost": "",
+	"InfluxDBApiToken": "",
+	"Org": "",
+	"Bucket": ""
+}

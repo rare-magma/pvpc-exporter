@@ -33,6 +33,6 @@ services:
           memory: 64m
           pids: 16
     volumes:
-      - ./pvpc_exporter.conf:/app/pvpc_exporter.conf:ro
+      - ./pvpc_exporter.json:/app/pvpc_exporter.json:ro
     labels:
       net.reddec.scheduler.cron: "* 21 * * *"

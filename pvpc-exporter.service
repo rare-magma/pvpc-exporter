@@ -3,8 +3,8 @@ Description=PVPC Exporter
 After=network-online.target
 
 [Service]
-ExecStart=/home/%u/.local/bin/pvpc_exporter.sh
-LoadCredential=creds:/home/%u/.config/pvpc_exporter.conf
+ExecStart=/home/%u/.local/bin/pvpc_exporter
+LoadCredential=creds:/home/%u/.config/pvpc_exporter.json
 Type=oneshot
 
 # Security hardening options
