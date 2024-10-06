@@ -120,6 +120,9 @@ func main() {
 		}
 	}
 
+	if len(payload.Bytes()) == 0 {
+		log.Fatalln("No data to send")
+	}
 	var buf bytes.Buffer
 	w := gzip.NewWriter(&buf)
 	w.Write(payload.Bytes())
