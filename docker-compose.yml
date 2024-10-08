@@ -20,7 +20,6 @@ services:
 
   pvpc-exporter:
     image: ghcr.io/rare-magma/pvpc-exporter:latest
-    init: true
     read_only: true
     cap_drop:
       - ALL
@@ -33,6 +32,6 @@ services:
           memory: 64m
           pids: 16
     volumes:
-      - ./pvpc_exporter.json:/app/pvpc_exporter.json:ro
+      - ./pvpc_exporter.json:/pvpc_exporter.json:ro
     labels:
       net.reddec.scheduler.cron: "* 21 * * *"
