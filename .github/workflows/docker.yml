@@ -69,7 +69,7 @@ jobs:
       run: zip pvpc_exporter-${{ matrix.goos }}-${{ matrix.goarch }}.zip pvpc_exporter
     - name: Create Release
       id: create_release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: pvpc_exporter-${{ matrix.goos }}-${{ matrix.goarch }}.zip
         tag_name: latest
