@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"net"
+	"math"
 	"net/http"
 	"os"
 	"time"
@@ -37,6 +37,52 @@ type Config struct {
 	InfluxDBHost     string `json:"InfluxDBHost"`
 	InfluxDBApiToken string `json:"InfluxDBApiToken"`
 	Org              string `json:"Org"`
+}
+
+type retryableTransport struct {
+	transport             http.RoundTripper
+	TLSHandshakeTimeout   time.Duration
+	ResponseHeaderTimeout time.Duration
+}
+
+const retryCount = 3
+
+func shouldRetry(err error, resp *http.Response) bool {
+	if err != nil {
+		return true
+	}
+	switch resp.StatusCode {
+	case http.StatusInternalServerError, http.StatusBadGateway, http.StatusServiceUnavailable, http.StatusGatewayTimeout:
+		return true
+	default:
+		return false
+	}
+}
+
+func (t *retryableTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	var bodyBytes []byte
+	if req.Body != nil {
+		bodyBytes, _ = io.ReadAll(req.Body)
+		req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+	}
+	resp, err := t.transport.RoundTrip(req)
+	retries := 0
+	for shouldRetry(err, resp) && retries < retryCount {
+		backoff := time.Duration(math.Pow(2, float64(retries))) * time.Second
+		time.Sleep(backoff)
+		if resp.Body != nil {
+			io.Copy(io.Discard, resp.Body)
+			resp.Body.Close()
+		}
+		if req.Body != nil {
+			req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+		}
+		log.Printf("Previous request failed with %s", resp.Status)
+		log.Printf("Retry %d of request to: %s", retries+1, req.URL)
+		resp, err = t.transport.RoundTrip(req)
+		retries++
+	}
+	return resp, err
 }
 
 func main() {
@@ -68,15 +114,14 @@ func main() {
 	flag.IntVar(&days, "days", 0, "Number of days in the past to fetch")
 	flag.Parse()
 
+	transport := &retryableTransport{
+		transport:             &http.Transport{},
+		TLSHandshakeTimeout:   30 * time.Second,
+		ResponseHeaderTimeout: 30 * time.Second,
+	}
 	client := &http.Client{
-		Timeout: 30 * time.Second,
-		Transport: &http.Transport{
-			DialContext: (&net.Dialer{
-				Timeout: 30 * time.Second,
-			}).DialContext,
-			TLSHandshakeTimeout:   30 * time.Second,
-			ResponseHeaderTimeout: 30 * time.Second,
-		},
+		Timeout:   30 * time.Second,
+		Transport: transport,
 	}
 
 	date := time.Now().AddDate(0, 0, -days).Format("2006-01-02")
