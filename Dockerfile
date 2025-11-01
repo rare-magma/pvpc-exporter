@@ -7,7 +7,7 @@ COPY internal internal
 COPY cmd cmd
 
 RUN for arch in amd64 arm64; do \
-      GOOS=linux GOARCH=$arch go build -ldflags "-s -w" -trimpath -o app-$arch ./cmd/server; \
+      GOOS=linux GOARCH=$arch go build -ldflags "-s -w" -trimpath -o app-$arch main.go; \
     done
 
 FROM cgr.dev/chainguard/static:latest
